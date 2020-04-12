@@ -1,17 +1,22 @@
 package com.example.todo.controllers
 
 import com.example.todo.models.TodoModel
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RestController
+import com.example.todo.repositories.TodoRepository
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
-class TodoController {
+@RequestMapping("/api/todos")
+class TodoController(private val repository: TodoRepository) {
 
-    @GetMapping("/todos/{id}")
-    fun getTodo(@PathVariable(value = "id") id: String): TodoModel {
-        val templateTitle = "This is my todo"
-        val templateDescription = "This is my todo's description"
-        return TodoModel(id = id.toLong(), title = templateTitle, description = templateDescription)
-    }
+    @GetMapping("/{id}")
+    fun getTodo(@PathVariable(value = "id") id: String) =
+            repository.findByIdOrNull(id.toLong())
+                    ?: ResponseStatusException(HttpStatus.NOT_FOUND, "This TODO does not exist")
+
+    @PostMapping("/")
+    fun createTodo(@RequestBody todo: TodoModel) =
+            repository.save(todo)
 }
