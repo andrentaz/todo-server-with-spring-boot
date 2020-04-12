@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
-import org.springframework.boot.test.web.client.postForObject
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 
@@ -44,6 +43,16 @@ class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTempla
     }
 
     @Test
+    fun `Assert 404 if todo not found`() {
+        val id = 123456789
+        val entity = restTemplate.getForEntity<Any>("/api/todos/$id")
+        val body = entity.body as LinkedHashMap<String, String>
+        assert(entity.statusCode == HttpStatus.NOT_FOUND)
+        assert(body["type"] == "TodoNotFound")
+        assert(body["message"] == "TODO with ID: $id does not exist")
+    }
+
+    @Test
     fun `Assert todo endpoint inserts in database`() {
         val todo = TodoModel(
                 title = "Test the post",
@@ -51,7 +60,7 @@ class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTempla
         )
         val request: HttpEntity<TodoModel> = HttpEntity(todo)
         val postedTodo = restTemplate
-                .postForObject<TodoModel>("/api/todos/", request, TodoModel::class.java)
+                .postForObject("/api/todos/", request, TodoModel::class.java)
 
         assert(postedTodo != null)
         assert(postedTodo.id == (2.toLong()))
