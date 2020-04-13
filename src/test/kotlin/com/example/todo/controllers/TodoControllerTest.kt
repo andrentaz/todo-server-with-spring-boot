@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 
@@ -50,6 +51,29 @@ class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTempla
         assert(entity.statusCode == HttpStatus.NOT_FOUND)
         assert(body["type"] == "TodoNotFound")
         assert(body["message"] == "TODO with ID: $id does not exist")
+    }
+
+    @Test
+    fun `Assert all endpoint returns a list of json`() {
+        val entity = restTemplate.getForEntity<List<LinkedHashMap<String, Any>>>("/api/todos/")
+        val body = entity.body as List<LinkedHashMap<String, Any>>
+
+        assert(body.isNotEmpty())
+        assert(body.size == 1)
+
+        val todo = body[0]
+        assert(todo["id"] == 1)
+        assert(todo["title"] == "This is my todo")
+        assert(todo["description"] == "This is my todo's description")
+    }
+
+    @Test
+    fun `Assert delete todos exclude if in database`() {
+        setup()
+        assert(repository.findByIdOrNull(2.toLong()) != null)
+
+        restTemplate.delete("/api/todos/2")
+        assert(repository.findByIdOrNull(2.toLong()) == null)
     }
 
     @Test
