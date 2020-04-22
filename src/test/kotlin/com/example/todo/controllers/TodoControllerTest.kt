@@ -1,7 +1,9 @@
 package com.example.todo.controllers
 
 import com.example.todo.models.TodoModel
+import com.example.todo.models.UserModel
 import com.example.todo.repositories.TodoRepository
+import com.example.todo.repositories.UserRepository
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -16,15 +18,23 @@ import org.springframework.http.HttpStatus
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTemplate,
-                                                val repository: TodoRepository) {
+                                                val userRepository: UserRepository,
+                                                val todoRepository: TodoRepository) {
 
     @BeforeAll
     fun setup() {
+        val user = UserModel(
+                name = "John Doe",
+                email = "jon@doe.com",
+                phone_number = "+5511987654321"
+        )
         val todo = TodoModel(
                 title = "This is my todo",
-                description = "This is my todo's description"
+                description = "This is my todo's description",
+                user = user
         )
-        repository.save(todo)
+        userRepository.save(user)
+        todoRepository.save(todo)
     }
 
     @Test
@@ -33,7 +43,8 @@ class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTempla
         val todo = TodoModel(
                 id = 1,
                 title = "This is my todo",
-                description = "This is my todo's description"
+                description = "This is my todo's description",
+                user = userRepository.findAll().first()
         )
         val body = entity.body as TodoModel
 
@@ -70,17 +81,18 @@ class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTempla
     @Test
     fun `Assert delete todos exclude if in database`() {
         setup()
-        assert(repository.findByIdOrNull(2.toLong()) != null)
+        assert(todoRepository.findByIdOrNull(2.toLong()) != null)
 
         restTemplate.delete("/api/todos/2")
-        assert(repository.findByIdOrNull(2.toLong()) == null)
+        assert(todoRepository.findByIdOrNull(2.toLong()) == null)
     }
 
     @Test
     fun `Assert todo endpoint inserts in database`() {
         val todo = TodoModel(
                 title = "Test the post",
-                description = "I need to test the post api"
+                description = "I need to test the post api",
+                user = userRepository.findAll().first()
         )
         val request: HttpEntity<TodoModel> = HttpEntity(todo)
         val postedTodo = restTemplate
