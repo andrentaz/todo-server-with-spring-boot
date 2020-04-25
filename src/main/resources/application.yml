@@ -1,0 +1,46 @@
+app:
+  url: http://localhost:8080
+
+cognito:
+  root-url: https://stgloggione.auth.us-east-2.amazoncognito.com
+
+spring:
+#  datasource:
+#    hikari:
+#      connectionTimeout: 20000
+#      maximumPoolSize: 5
+#
+#    driverClassName: org.postgresql.Driver
+#    url: jdbc:postgresql://db:5432/todos
+#    username: appserver
+#    password: password
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+
+  security:
+    oauth2:
+      client:
+        registration:
+          cognito:
+            client-id: 2o4f47rl93kbkicjr28bbpcfbg
+            client-name: client
+            authorization-grant-type: authorization_code
+            scope: email,openid
+            redirect-uri: ${app.url}/login/oauth2/code/cognito
+        provider:
+          cognito:
+            authorization-uri: ${cognito.rooturl}/oauth2/authorize
+            token-uri: ${cognito.rooturl}/oauth2/token
+            jwk-set-uri: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_SVlwV1xQz/.well-known/jwks.json
+            user-info-uri: ${cognito.rooturl}/oauth2/userInfo
+            user-name-attribute: username
+
+  logging:
+    level:
+      org:
+        springframework:
+          security: DEBUG
+          web:
+            FilterChainProxy: DEBUG
