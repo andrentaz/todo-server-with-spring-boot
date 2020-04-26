@@ -15,7 +15,8 @@ class TodoRepositoryTest @Autowired constructor(val entityManager: TestEntityMan
     fun `When findByIdOrNull then return TODO item`() {
         val todo = TodoModel(
                 title = "test my models",
-                description = "need to implement tests"
+                description = "need to implement tests",
+                username = "any-user-name"
         )
         entityManager.persist(todo)
         entityManager.flush()

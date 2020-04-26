@@ -12,11 +12,12 @@ import org.springframework.security.web.authentication.AuthenticationFilter
 class AuthenticationConfig(val processor: ConfigurableJWTProcessor<SecurityContext>) : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
-            .authorizeRequests()
-            .antMatchers("/hello").permitAll()
-            .anyRequest().authenticated()
-            .and()
-            .addFilter(JwtAuthenticationFilter(processor, authenticationManager()))
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/hello").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .addFilter(JwtAuthenticationFilter(processor, authenticationManager()))
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     }
 }
