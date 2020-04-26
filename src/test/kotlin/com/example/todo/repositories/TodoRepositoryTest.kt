@@ -1,7 +1,6 @@
 package com.example.todo.repositories
 
 import com.example.todo.models.TodoModel
-import com.example.todo.models.UserModel
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -14,17 +13,10 @@ class TodoRepositoryTest @Autowired constructor(val entityManager: TestEntityMan
 
     @Test
     fun `When findByIdOrNull then return TODO item`() {
-        val user = UserModel(
-                name = "John Doe",
-                email = "john@doe.com",
-                phone_number = "+5511987654321"
-        )
         val todo = TodoModel(
                 title = "test my models",
-                description = "need to implement tests",
-                user = user
+                description = "need to implement tests"
         )
-        entityManager.persist(user)
         entityManager.persist(todo)
         entityManager.flush()
 

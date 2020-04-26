@@ -1,9 +1,7 @@
 package com.example.todo.controllers
 
 import com.example.todo.models.TodoModel
-import com.example.todo.models.UserModel
 import com.example.todo.repositories.TodoRepository
-import com.example.todo.repositories.UserRepository
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -18,22 +16,14 @@ import org.springframework.http.HttpStatus
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTemplate,
-                                                val userRepository: UserRepository,
                                                 val todoRepository: TodoRepository) {
 
     @BeforeAll
     fun setup() {
-        val user = UserModel(
-                name = "John Doe",
-                email = "jon@doe.com",
-                phone_number = "+5511987654321"
-        )
         val todo = TodoModel(
                 title = "This is my todo",
-                description = "This is my todo's description",
-                user = user
+                description = "This is my todo's description"
         )
-        userRepository.save(user)
         todoRepository.save(todo)
     }
 
@@ -43,8 +33,7 @@ class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTempla
         val todo = TodoModel(
                 id = 1,
                 title = "This is my todo",
-                description = "This is my todo's description",
-                user = userRepository.findAll().first()
+                description = "This is my todo's description"
         )
         val body = entity.body as TodoModel
 
@@ -91,8 +80,7 @@ class TodoControllerTest @Autowired constructor(val restTemplate: TestRestTempla
     fun `Assert todo endpoint inserts in database`() {
         val todo = TodoModel(
                 title = "Test the post",
-                description = "I need to test the post api",
-                user = userRepository.findAll().first()
+                description = "I need to test the post api"
         )
         val request: HttpEntity<TodoModel> = HttpEntity(todo)
         val postedTodo = restTemplate
